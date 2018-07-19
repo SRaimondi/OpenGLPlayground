@@ -8,34 +8,15 @@
 #include <iostream>
 #include "Shader.hpp"
 #include "Model.hpp"
+#include "FrameCounter.hpp"
 
 void processInput(GLFWwindow *window);
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 
-double previous_seconds;
-int frame_count;
-
-/* we will use this function to update the window title with a frame rate */
-void _update_fps_counter(GLFWwindow *window) {
-    double current_seconds;
-    double elapsed_seconds;
-    current_seconds = glfwGetTime();
-    elapsed_seconds = current_seconds - previous_seconds;
-    /* limit text updates to 4 per second */
-    if (elapsed_seconds > 0.1) {
-        previous_seconds = current_seconds;
-        char tmp[128];
-        double fps = (double) frame_count / elapsed_seconds;
-        sprintf(tmp, "opengl @ fps: %.2f", fps);
-        glfwSetWindowTitle(window, tmp);
-        frame_count = 0;
-    }
-    frame_count++;
-}
-
 constexpr int WIDTH = 800;
 constexpr int HEIGHT = 600;
+const std::string title("OpenGL playground");
 
 int main() {
     // Initialise GLFW
@@ -47,7 +28,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "OpenGL playground", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, title.c_str(), nullptr, nullptr);
     if (window == nullptr) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
@@ -65,6 +46,9 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    // Create FrameCounter
+    FrameCounter frame_counter;
+
     // Set clear color
     glClearColor(0.2f, 0.3f, 0.3f, 1.f);
 
@@ -78,22 +62,6 @@ int main() {
 
     // Load model
     Model dragon_model("/Users/simon/Documents/Workspace/models/dragon_recon/dragon_vrip.ply");
-
-//    // Load shaders
-//    Shader normal_shader_v("shaders/normal.vert", ShaderType::Vertex);
-//    Shader normal_shader_f("shaders/normal.frag", ShaderType::Fragment);
-//    // Create program
-//    Program normal_program({normal_shader_v, normal_shader_f});
-//    // Prefetch attributes and uniforms locations
-//    normal_program.prefetchAttributes({"vertex_position", "vertex_normal"});
-//    normal_program.prefetchUniforms({"model", "view", "proj"});
-//    // Print informations
-//    normal_program.printInformations();
-//    GL_CHECK();
-//
-//    // Set shader active
-//    normal_program.use();
-
 
     // Load shaders
     Shader diffuse_shader_v("shaders/diffuse.vert", ShaderType::Vertex);
@@ -109,72 +77,6 @@ int main() {
     // Set shader active
     diffuse_program.use();
 
-//    // Load shader
-//    Shader base_shader_vert("shaders/base.vert", ShaderType::Vertex);
-//    Shader base_shader_frag("shaders/base.frag", ShaderType::Fragment);
-//    // Create program
-//    Program base_program({base_shader_vert, base_shader_frag});
-//
-//    // Prefetch locations
-//    base_program.prefetchAttributes({"vertex_position", "vertex_colour"});
-//    base_program.prefetchUniforms({"model", "view", "projection"});
-//
-//    // Print infos about shader
-//    base_program.printInformations();
-
-//    // Generate VAO
-//    GLuint vao;
-//    glGenVertexArrays(1, &vao);
-//    glBindVertexArray(vao);
-//
-//    // Vertex and colour data
-//    const std::vector<glm::vec3> triangle_data = {
-//            glm::vec3(-1.f, -1.f, 0.f), glm::vec3(1.f, 0.f, 0.f),     // First vertex
-//            glm::vec3(1.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f),      // Second vertex
-//            glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 0.f, 1.f)        // Last vertex
-//    };
-//
-//    // Create VBO to store data
-//    GLuint vbo;
-//    glGenBuffers(1, &vbo);
-//    // Bind array buffer
-//    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//    // Upload data to GPU
-//    glBufferData(GL_ARRAY_BUFFER,
-//                 triangle_data.size() * sizeof(glm::vec3),
-//                 reinterpret_cast<const GLvoid*>(triangle_data.data()), GL_STATIC_DRAW);
-//    GL_CHECK();
-//
-//    // Set attributes pointer
-//    glVertexAttribPointer(base_program.getAttributeLocation("vertex_position"),
-//                          3,
-//                          GL_FLOAT,
-//                          GL_FALSE,
-//                          2 * sizeof(glm::vec3),
-//                          reinterpret_cast<const GLvoid*>(0));
-//    glVertexAttribPointer(base_program.getAttributeLocation("vertex_colour"),
-//                          3,
-//                          GL_FLOAT,
-//                          GL_FALSE,
-//                          2 * sizeof(glm::vec3),
-//                          reinterpret_cast<const GLvoid*>(sizeof(glm::vec3)));
-//
-//    // Enable vertex attribute pointers
-//    glEnableVertexAttribArray(base_program.getAttributeLocation("vertex_position"));
-//    glEnableVertexAttribArray(base_program.getAttributeLocation("vertex_colour"));
-
-    // Validate shader
-//#ifndef NDEBUG
-//    base_program.validate();
-//#endif
-//
-//    // Set shader active
-//    base_program.use();
-//
-//    // Set uniforms
-//    base_program.setMat4("view", glm::lookAt(glm::vec3(0.f, 0.f, 5.f), glm::vec3(0.f), glm::vec3(0.f, 1.f, 0.f)));
-//    base_program.setMat4("projection", glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 100.f));
-
     // Set uniforms
     const auto model = glm::scale(glm::mat4(1.f), glm::vec3(3.f));
     diffuse_program.setMat4("model", model);
@@ -182,9 +84,20 @@ int main() {
                             glm::lookAt(glm::vec3(0.f, 1.f, 1.f), glm::vec3(0.f, 0.2f, 0.f), glm::vec3(0.f, 1.f, 0.f)));
     diffuse_program.setMat4("proj", glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 20.f));
 
+    double last_frame_update = 0.0;
+
     // Render loop
     while (!glfwWindowShouldClose(window)) {
-        _update_fps_counter(window);
+        // Update FrameCounter
+        frame_counter.update();
+
+        // Update window title
+        if (last_frame_update > 0.1) {
+            last_frame_update = 0.0;
+            glfwSetWindowTitle(window, (title + " @ " + std::to_string(frame_counter.getFrameRate()) + " fps").c_str());
+        } else {
+            last_frame_update += frame_counter.getElapsedTime();
+        }
 
         // Process input
         processInput(window);
@@ -194,14 +107,6 @@ int main() {
 
         // Draw mesh
         dragon_model.draw();
-
-//        base_program.setMat4("model", glm::rotate(glm::mat4(1.f),
-//                                                  glm::radians(45.f) * static_cast<float>(glfwGetTime()),
-//                                                  glm::vec3(0.f, 1.f, 0.f)));
-//
-//        // Draw
-//        glBindVertexArray(vao);
-//        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(triangle_data.size() / 2));
 
         // Swap buffer
         glfwSwapBuffers(window);
@@ -216,8 +121,6 @@ int main() {
     diffuse_shader_f.destroy();
     diffuse_program.destroy();
 
-//    glDeleteBuffers(1, &vbo);
-//    glDeleteVertexArrays(1, &vao);
     glfwTerminate();
 
     exit(EXIT_SUCCESS);
