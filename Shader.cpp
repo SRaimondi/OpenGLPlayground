@@ -209,25 +209,21 @@ bool Program::prefetchUniforms(const std::initializer_list<std::string>& uniform
     return true;
 }
 
-bool Program::prefetchUniformBlock(const std::string& uniform_block_name) const {
-    const GLuint location = glGetUniformBlockIndex(m_program_id, uniform_block_name.c_str());
-    if (location == GL_INVALID_INDEX) {
-        return false;
-    } else {
-        m_uniforms_block_map[uniform_block_name] = static_cast<GLuint>(location);
-        return true;
-    }
-}
-
-bool Program::prefetchUniformBlocks(const std::initializer_list<std::string>& uniform_blocks_names) const {
-    // Loop over all given uniform blocks and prefetch them
-    for (const auto& ub : uniform_blocks_names) {
-        if (!prefetchUniformBlock(ub)) {
-            return false;
-        }
-    }
-    return true;
-}
+//bool Program::prefetchUniformBlock(const std::string& uniform_block_name) const {
+//    // Create uniform block and insert it into map
+//    m_uniforms_block_map[uniform_block_name] = UniformBlock(m_program_id, uniform_block_name);
+//    return true;
+//}
+//
+//bool Program::prefetchUniformBlocks(const std::initializer_list<std::string>& uniform_blocks_names) const {
+//    // Loop over all given uniform blocks and prefetch them
+//    for (const auto& ub : uniform_blocks_names) {
+//        if (!prefetchUniformBlock(ub)) {
+//            return false;
+//        }
+//    }
+//    return true;
+//}
 
 bool Program::prefetchAttribute(const std::string& attribute_name) const {
     const GLint location = glGetAttribLocation(m_program_id, attribute_name.c_str());
@@ -267,20 +263,17 @@ GLuint Program::getUniformLocation(const std::string& uniform_name) const {
     }
 }
 
-GLuint Program::getUniformBlockLocation(const std::string& uniform_block_name) const {
+const UniformBlock& Program::getUniformBlock(const std::string& uniform_block_name) const {
     // Check if the uniform block has been fetched
     const auto it = m_uniforms_block_map.find(uniform_block_name);
     if (it == m_uniforms_block_map.end()) {
-        // Try to fetch the value for later usage
-        if (!prefetchUniformBlock(uniform_block_name)) {
-            std::cerr << "Program does not have a uniform block called: " << uniform_block_name << "\n";
-            return std::numeric_limits<GLuint>::max();
-        } else {
+        // Try to fetch the block for later usage
+        if (prefetchUniformBlock(uniform_block_name)) {
             // Now the location is in the map, return it
             return m_uniforms_block_map[uniform_block_name];
         }
     } else {
-        // Return location directly
+        // Return uniform block directly
         return it->second;
     }
 }
@@ -471,7 +464,8 @@ void Program::printUniformBlocks() const {
     // Print uniform blocks informations
     std::cout << "Program has " << m_uniforms_block_map.size() << " uniform blocks\n";
     for (const auto& u : m_uniforms_block_map) {
-        std::cout << "Name: " << u.first << " Binding: " << u.second << "\n";
+        std::cout << "Uniform block name: " << u.first << "\n";
+        u.second.printInformations();
     }
 }
 
@@ -485,7 +479,7 @@ void Program::printAttributes() const {
 
 void Program::printInformations() const {
     // Separator
-    constexpr std::string separator = "----------------------------------------------\n";
+    const std::string separator = "----------------------------------------------\n";
 
     std::cout << separator;
     printUniforms();

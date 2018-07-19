@@ -12,7 +12,7 @@ layout (location = 1) in vec3 vertex_normal;
 uniform Matrices {
     mat4 model;
     mat4 view;
-    mat4 proj[2];
+    mat4 proj;
 };
 
 out VS_OUT {

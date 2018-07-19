@@ -31,7 +31,7 @@ void UniformBlock::setupMap(const GLuint program_id) {
 
         // Convert to GLuint
         std::vector<GLuint> indices_u(num_active_uniforms);
-        for (unsigned int i = 0; i < num_active_uniforms; ++i) {
+        for (int i = 0; i < num_active_uniforms; ++i) {
             indices_u[i] = static_cast<GLuint>(indices[i]);
         }
 
@@ -46,16 +46,24 @@ void UniformBlock::setupMap(const GLuint program_id) {
         GLint size;
         GLenum type;
         GLchar name[max_size];
+        GLchar *final_name;
 
         // Loop over all indices, retrieve description and store them in the map
-        for (unsigned int i = 0; i < num_active_uniforms; ++i) {
+        for (int i = 0; i < num_active_uniforms; ++i) {
             glGetActiveUniform(program_id, indices_u[i], max_size, &length, &size, &type, name);
             GL_CHECK();
 
+            // Check if uniform is an array and modify name
+            if (size > 1) {
+                final_name = strtok(name, "[");
+            } else {
+                final_name = name;
+            }
             m_uniforms_map.emplace(
                     std::make_pair<std::string, UniformBlockElementDescription>(
-                            name,
-                            UniformBlockElementDescription(indices_u[i], type, GLTypeToSize(type), size, offsets[i])));
+                            final_name,
+                            UniformBlockElementDescription(indices_u[i], type, GLTypeToSize(type), size,
+                                                           offsets[i])));
         }
 
     } else {
@@ -63,8 +71,11 @@ void UniformBlock::setupMap(const GLuint program_id) {
     }
 }
 
+UniformBlock::UniformBlock()
+        : m_block_index(0), m_binding_point(0), m_block_size(0) {}
+
 UniformBlock::UniformBlock(const GLuint program_id, const std::string& block_name)
-        : m_block_index(0), m_binding_point(0), m_buffer_id(0) {
+        : m_block_index(0), m_binding_point(0), m_block_size(0) {
     // First, find the index of the uniform block in the program
     m_block_index = glGetUniformBlockIndex(program_id, block_name.c_str());
     if (m_block_index == GL_INVALID_INDEX) {
@@ -89,3 +100,4 @@ void UniformBlock::printInformations() const {
         uniform.second.printInformations();
     }
 }
+

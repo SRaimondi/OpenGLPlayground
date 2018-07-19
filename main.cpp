@@ -70,10 +70,6 @@ int main() {
     // Create program
     Program diffuse_program({diffuse_shader_v, diffuse_shader_f});
 
-
-    // FIXME
-    UniformBlock block(diffuse_program.getID(), "Matrices");
-
     // Prefetch attributes and uniforms locations
     diffuse_program.prefetchAttributes({"vertex_position", "vertex_normal"});
     diffuse_program.prefetchUniforms({"model", "view", "proj"});

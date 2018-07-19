@@ -34,8 +34,6 @@ private:
     GLuint m_block_index;
     // Binding point
     GLint m_binding_point;
-    // Buffer index
-    GLuint m_buffer_id;
 
     // Size of the buffer
     GLint m_block_size;
@@ -47,6 +45,8 @@ private:
     void setupMap(GLuint program_id);
 
 public:
+    UniformBlock();
+
     // Construct UniformBlock for a given program and given the name
     UniformBlock(GLuint program_id, const std::string& block_name);
 
