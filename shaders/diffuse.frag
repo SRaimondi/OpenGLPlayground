@@ -12,5 +12,6 @@ out vec4 frag_color;
 void main() {
     // Compute color based on normal and camera position
     float n_dot_dir = dot(normalize(-fs_in.vertex_camera), fs_in.normal_camera);
+    // Output fragment color
     frag_color = vec4(n_dot_dir, n_dot_dir, n_dot_dir, 1.f);
 }

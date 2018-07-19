@@ -18,7 +18,7 @@ add_executable(OpenGLPlayground
         FileIO.cpp FileIO.hpp
         Mesh.cpp Mesh.hpp
         Model.cpp Model.hpp
-        FrameCounter.cpp FrameCounter.hpp)
+        FrameCounter.cpp FrameCounter.hpp UniformBlock.cpp UniformBlock.hpp)
 
 # Find GLEW
 find_package(GLEW REQUIRED)

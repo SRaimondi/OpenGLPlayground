@@ -68,6 +68,10 @@ int main() {
     Shader diffuse_shader_f("shaders/diffuse.frag", ShaderType::Fragment);
     // Create program
     Program diffuse_program({diffuse_shader_v, diffuse_shader_f});
+
+
+
+
     // Prefetch attributes and uniforms locations
     diffuse_program.prefetchAttributes({"vertex_position", "vertex_normal"});
     diffuse_program.prefetchUniforms({"model", "view", "proj"});
@@ -78,8 +82,6 @@ int main() {
     diffuse_program.use();
 
     // Set uniforms
-    const auto model = glm::scale(glm::mat4(1.f), glm::vec3(3.f));
-    diffuse_program.setMat4("model", model);
     diffuse_program.setMat4("view",
                             glm::lookAt(glm::vec3(0.f, 1.f, 1.f), glm::vec3(0.f, 0.2f, 0.f), glm::vec3(0.f, 1.f, 0.f)));
     diffuse_program.setMat4("proj", glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 20.f));
@@ -104,6 +106,11 @@ int main() {
 
         // Clear color and depth buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Update model matrix
+        auto model = glm::rotate(glm::scale(glm::mat4(1.f), glm::vec3(3.f)),
+                                 static_cast<float>(glfwGetTime()) * glm::radians(50.f), glm::vec3(0.f, 1.f, 0.f));
+        diffuse_program.setMat4("model", model);
 
         // Draw mesh
         dragon_model.draw();

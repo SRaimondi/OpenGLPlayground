@@ -5,9 +5,15 @@ layout (location = 0) in vec3 vertex_position;
 layout (location = 1) in vec3 vertex_normal;
 
 // Matrices
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+//uniform mat4 model;
+//uniform mat4 view;
+//uniform mat4 proj;
+
+uniform Matrices {
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+};
 
 out VS_OUT {
     // Vertex and normal in camera space

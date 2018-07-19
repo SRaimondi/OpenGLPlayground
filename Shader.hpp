@@ -86,6 +86,11 @@ public:
     // Construct shader from a given list of shaders
     Program(const std::initializer_list<Shader>& shaders);
 
+    // Get program ID
+    inline GLuint getID() const noexcept {
+        return m_program_id;
+    }
+
     // Destroy program
     void destroy();
 
