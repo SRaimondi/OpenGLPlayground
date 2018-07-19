@@ -10,6 +10,14 @@
 UniformBlockElementDescription::UniformBlockElementDescription(GLuint i, GLenum t, GLsizei s_b, GLsizei s, GLint off)
         : index(i), type(t), size_bytes(s_b), size(s), offset(off) {}
 
+void UniformBlockElementDescription::printInformations() const {
+    std::cout << "\tIndex: " << index << "\n";
+    std::cout << "\tType: " << GLTypeToString(type) << "\n";
+    std::cout << "\tSize (bytes): " << size_bytes << "\n";
+    std::cout << "\tSize: " << size << "\n";
+    std::cout << "\tOffset: " << offset << "\n";
+}
+
 void UniformBlock::setupMap(const GLuint program_id) {
     // Query how many uniforms are in the block
     GLint num_active_uniforms;
@@ -73,4 +81,11 @@ UniformBlock::UniformBlock(const GLuint program_id, const std::string& block_nam
 
     // Setup map
     setupMap(program_id);
+}
+
+void UniformBlock::printInformations() const {
+    for (const auto& uniform : m_uniforms_map) {
+        std::cout << "Name: " << uniform.first << "\n";
+        uniform.second.printInformations();
+    }
 }

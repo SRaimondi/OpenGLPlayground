@@ -22,6 +22,9 @@ struct UniformBlockElementDescription {
     GLint offset;
 
     UniformBlockElementDescription(GLuint i, GLenum t, GLsizei s_b, GLsizei s, GLint off);
+
+    // Print structure
+    void printInformations() const;
 };
 
 // Uniform block wrapper class associated with a program
@@ -44,7 +47,11 @@ private:
     void setupMap(GLuint program_id);
 
 public:
+    // Construct UniformBlock for a given program and given the name
     UniformBlock(GLuint program_id, const std::string& block_name);
+
+    // Print information about the block
+    void printInformations() const;
 };
 
 #endif //OPENGLPLAYGROUND_UNIFORMBLOCK_HPP

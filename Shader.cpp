@@ -484,9 +484,12 @@ void Program::printAttributes() const {
 }
 
 void Program::printInformations() const {
-    std::cout << "----------------------------------------------\n";
+    // Separator
+    constexpr std::string separator = "----------------------------------------------\n";
+
+    std::cout << separator;
     printUniforms();
     printUniformBlocks();
     printAttributes();
-    std::cout << "----------------------------------------------\n";
+    std::cout << separator;
 }

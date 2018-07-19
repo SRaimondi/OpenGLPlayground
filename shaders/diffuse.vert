@@ -12,7 +12,7 @@ layout (location = 1) in vec3 vertex_normal;
 uniform Matrices {
     mat4 model;
     mat4 view;
-    mat4 proj;
+    mat4 proj[2];
 };
 
 out VS_OUT {
@@ -23,7 +23,7 @@ out VS_OUT {
 
 void main() {
     // Compute output position
-	gl_Position = proj * view * model * vec4(vertex_position, 1.0);
+	gl_Position = proj[1] * proj[0] * view * model * vec4(vertex_position, 1.0);
 	mat3 normal = transpose(inverse(mat3(view * model)));
 	// Compute variables in camera space
 	vs_out.vertex_camera = (view * model * vec4(vertex_position, 1.0)).xyz;
