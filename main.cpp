@@ -210,7 +210,11 @@ int main() {
         glfwPollEvents();
     }
 
+    // Cleanup
     dragon_model.destroy();
+    diffuse_shader_v.destroy();
+    diffuse_shader_f.destroy();
+    diffuse_program.destroy();
 
 //    glDeleteBuffers(1, &vbo);
 //    glDeleteVertexArrays(1, &vao);

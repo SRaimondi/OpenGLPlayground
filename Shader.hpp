@@ -45,10 +45,7 @@ public:
     Shader(const std::string& file_name, const ShaderType& type);
 
     // Construct from a given list of strings, assumes the strings are null terminated
-    explicit Shader(const std::vector<std::string>& sources, const ShaderType& type);
-
-    // Destructor deletes the shader
-    ~Shader();
+    Shader(const std::vector<std::string>& sources, const ShaderType& type);
 
     // Get id
     inline GLuint getID() const noexcept {
@@ -59,6 +56,9 @@ public:
     inline ShaderType getType() const noexcept {
         return m_type;
     }
+
+    // Destroy shader
+    void destroy();
 };
 
 // Program class, wraps the program OpenGL concept
@@ -86,7 +86,8 @@ public:
     // Construct shader from a given list of shaders
     Program(const std::initializer_list<Shader>& shaders);
 
-    ~Program();
+    // Destroy program
+    void destroy();
 
     // Use program
     inline void use() const noexcept {

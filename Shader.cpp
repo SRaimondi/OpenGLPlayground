@@ -97,10 +97,8 @@ Shader::Shader(const std::vector<std::string>& sources, const ShaderType& type)
     compile();
 }
 
-Shader::~Shader() {
-    // Delete shader
+void Shader::destroy() {
     glDeleteShader(m_shader_id);
-    GL_CHECK();
 }
 
 void Program::link() const {
@@ -164,10 +162,8 @@ Program::Program(const std::initializer_list<Shader>& shaders)
     link();
 }
 
-Program::~Program() {
-    // Delete program
+void Program::destroy() {
     glDeleteProgram(m_program_id);
-    GL_CHECK();
 }
 
 void Program::validate() const noexcept {
