@@ -53,7 +53,7 @@ public:
     UniformBlock(GLuint program_id, const std::string& block_name);
 
     // Get description given name
-    inline const UniformBlockElementDescription& operator()(const std::string& uniform_name) const {
+    inline const UniformBlockElementDescription& getUniformDescription(const std::string& uniform_name) const {
         const auto it = m_uniforms_map.find(uniform_name);
         if (it == m_uniforms_map.end()) {
             std::cerr << "Requesting invalid uniform description\n";

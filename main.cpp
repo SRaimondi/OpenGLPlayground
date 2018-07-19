@@ -65,8 +65,8 @@ int main() {
     Model dragon_model("/Users/simon/Documents/Workspace/models/dragon_recon/dragon_vrip.ply");
 
     // Load shaders
-    Shader diffuse_shader_v("shaders/normal.vert", ShaderType::Vertex);
-    Shader diffuse_shader_f("shaders/normal.frag", ShaderType::Fragment);
+    Shader diffuse_shader_v("shaders/diffuse.vert", ShaderType::Vertex);
+    Shader diffuse_shader_f("shaders/diffuse.frag", ShaderType::Fragment);
     // Create program
     Program diffuse_program({diffuse_shader_v, diffuse_shader_f});
 
@@ -91,7 +91,25 @@ int main() {
     // Bind buffer to uniform buffer
     glBindBuffer(GL_UNIFORM_BUFFER, matrices_buffer);
     // Upload data
-    glBufferData(GL_UNIFORM_BUFFER, matrices.size() * sizeof(glm::mat4), matrices.data(), GL_STATIC_DRAW);
+    const auto& un_block = diffuse_program.getUniformBlock("Matrices");
+    constexpr bool whole_buffer = false;
+    if (whole_buffer) {
+        glBufferData(GL_UNIFORM_BUFFER, un_block.getBlockSize(), matrices.data(), GL_STATIC_DRAW);
+    } else {
+        // Allocate space
+        glBufferData(GL_UNIFORM_BUFFER, un_block.getBlockSize(), nullptr, GL_STATIC_DRAW);
+        // Upload each matrix separately, start with view
+        auto view_desc = un_block.getUniformDescription("view");
+        glBufferSubData(GL_UNIFORM_BUFFER,
+                        view_desc.offset,
+                        view_desc.size_bytes, &matrices[0]);
+        GL_CHECK();
+        auto proj_desc = un_block.getUniformDescription("proj");
+        glBufferSubData(GL_UNIFORM_BUFFER,
+                        proj_desc.offset,
+                        proj_desc.size_bytes, &matrices[1]);
+        GL_CHECK();
+    }
     // Bind buffer object to shader binding point
     glBindBufferBase(GL_UNIFORM_BUFFER, diffuse_program.getUniformBlock("Matrices").getBindingPoint(), matrices_buffer);
     GL_CHECK();
