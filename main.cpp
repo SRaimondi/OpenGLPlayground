@@ -15,8 +15,8 @@ void processInput(GLFWwindow *window);
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 600;
+constexpr int WIDTH = 1280;
+constexpr int HEIGHT = 1024;
 const std::string title("OpenGL playground");
 
 int main() {
@@ -62,7 +62,7 @@ int main() {
     glFrontFace(GL_CCW);
 
     // Load model
-    Model dragon_model("/Users/simon/Documents/Workspace/models/dragon_recon/dragon_vrip.ply");
+    Model dragon_model("/Users/simon/Documents/Workspace/models/dragon.ply");
 
     // Load shaders
     Shader diffuse_shader_v("shaders/diffuse.vert", ShaderType::Vertex);
@@ -77,13 +77,23 @@ int main() {
     // Print informations
     diffuse_program.printInformations();
 
-    // Set shader active
-    diffuse_program.use();
+    // Load shaders
+    Shader normal_shader_v("shaders/normal.vert", ShaderType::Vertex);
+    Shader normal_shader_f("shaders/normal.frag", ShaderType::Fragment);
+    // Create program
+    Program normal_program({normal_shader_v, normal_shader_f});
+
+    // Prefetch attributes and uniforms locations
+    normal_program.prefetchAttributes({"vertex_position", "vertex_normal"});
+    normal_program.prefetchUniform("model");
+    normal_program.prefetchUniformBlock("Matrices");
+    // Print informations
+    normal_program.printInformations();
 
     // Create buffer with view and projection matrix
     const std::vector<glm::mat4> matrices = {
-            glm::lookAt(glm::vec3(0.f, 1.f, 1.f), glm::vec3(0.f, 0.2f, 0.f), glm::vec3(0.f, 1.f, 0.f)),
-            glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 20.f)};
+            glm::lookAt(glm::vec3(0.f, 2.f, 7.f), glm::vec3(0.f, 0.2f, 0.f), glm::vec3(0.f, 1.f, 0.f)),
+            glm::perspective(glm::radians(45.f), static_cast<float>(WIDTH) / HEIGHT, 0.1f, 20.f)};
 
     // Create a buffer to store
     GLuint matrices_buffer;
@@ -92,7 +102,7 @@ int main() {
     glBindBuffer(GL_UNIFORM_BUFFER, matrices_buffer);
     // Upload data
     const auto& un_block = diffuse_program.getUniformBlock("Matrices");
-    constexpr bool whole_buffer = false;
+    constexpr bool whole_buffer = true;
     if (whole_buffer) {
         glBufferData(GL_UNIFORM_BUFFER, un_block.getBlockSize(), matrices.data(), GL_STATIC_DRAW);
     } else {
@@ -112,6 +122,7 @@ int main() {
     }
     // Bind buffer object to shader binding point
     glBindBufferBase(GL_UNIFORM_BUFFER, diffuse_program.getUniformBlock("Matrices").getBindingPoint(), matrices_buffer);
+    glBindBufferBase(GL_UNIFORM_BUFFER, normal_program.getUniformBlock("Matrices").getBindingPoint(), matrices_buffer);
     GL_CHECK();
 
     double last_frame_update = 0.0;
@@ -135,11 +146,25 @@ int main() {
         // Clear color and depth buffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Update model matrix
-        auto model = glm::rotate(glm::scale(glm::mat4(1.f), glm::vec3(3.f)),
-                                 static_cast<float>(glfwGetTime()) * glm::radians(50.f), glm::vec3(0.f, 1.f, 0.f));
-        diffuse_program.setMat4("model", model);
+        // Compute rotation matrix
+        auto translate = glm::translate(glm::mat4(1.f), glm::vec3(-2.f, 0.f, 0.f));
+        const auto rotation = glm::rotate(glm::mat4(1.f),
+                                          glm::radians(45.f) * static_cast<float>(glfwGetTime()),
+                                          glm::vec3(0.f, 1.f, 0.f));
 
+        // Add translation
+        auto model_diffuse = translate * rotation; //glm::translate(scale_rot, glm::vec3(-0.1f, 0.f, 0.f));
+
+        diffuse_program.use();
+        diffuse_program.setMat4("model", model_diffuse);
+        // Draw mesh
+        dragon_model.draw();
+
+        // Draw right dragon
+        translate = glm::translate(glm::mat4(1.f), glm::vec3(2.f, 0.f, 0.f));
+        auto model_normal = translate * rotation;
+        normal_program.use();
+        normal_program.setMat4("model", model_normal);
         // Draw mesh
         dragon_model.draw();
 
@@ -151,10 +176,21 @@ int main() {
     }
 
     // Cleanup
+
+    // Destroy uniform block
+    glDeleteBuffers(1, &matrices_buffer);
+
+    // Destroy model
     dragon_model.destroy();
+
+    // destroy shaders
     diffuse_shader_v.destroy();
     diffuse_shader_f.destroy();
     diffuse_program.destroy();
+
+    normal_shader_v.destroy();
+    normal_shader_f.destroy();
+    normal_program.destroy();
 
     glfwTerminate();
 
