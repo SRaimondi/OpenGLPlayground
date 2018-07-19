@@ -75,7 +75,9 @@ int main() {
     diffuse_program.prefetchUniform("model");
     diffuse_program.prefetchUniformBlock("Matrices");
     // Print informations
+#ifndef NDEBUG
     diffuse_program.printInformations();
+#endif
 
     // Load shaders
     Shader normal_shader_v("shaders/normal.vert", ShaderType::Vertex);
@@ -88,7 +90,9 @@ int main() {
     normal_program.prefetchUniform("model");
     normal_program.prefetchUniformBlock("Matrices");
     // Print informations
+#ifndef NDEBUG
     normal_program.printInformations();
+#endif
 
     // Create buffer with view and projection matrix
     const std::vector<glm::mat4> matrices = {
@@ -100,6 +104,7 @@ int main() {
     glGenBuffers(1, &matrices_buffer);
     // Bind buffer to uniform buffer
     glBindBuffer(GL_UNIFORM_BUFFER, matrices_buffer);
+
     // Upload data
     const auto& un_block = diffuse_program.getUniformBlock("Matrices");
     constexpr bool whole_buffer = true;

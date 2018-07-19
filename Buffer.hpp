@@ -25,6 +25,11 @@ public:
     // Destroy buffer
     void destroy();
 
+    // Get buffer id
+    inline GLuint getID() const noexcept {
+        return m_id;
+    }
+
     // Submit data to whole buffer
     template<typename T>
     void submitData(const std::vector<T>& data);
@@ -35,16 +40,21 @@ public:
     template<typename T>
     void submitSubData(const std::vector<T>& data, GLintptr offset);
 
+    // Check if buffer is binded
+    inline bool isBinded() const noexcept {
+        return m_is_binded;
+    }
+
     // Bind / unbind buffer
     inline void bind() const {
-        if (!m_is_binded) {
+        if (!isBinded()) {
             glBindBuffer(m_target, m_id);
             m_is_binded = true;
         }
     }
 
     inline void unbind() const {
-        if (m_is_binded) {
+        if (isBinded()) {
             glBindBuffer(m_target, 0);
             m_is_binded = false;
         }
