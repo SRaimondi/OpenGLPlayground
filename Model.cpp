@@ -51,7 +51,10 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *) {
         }
     }
 
-    return Mesh(vertices, indices);
+    // Print mesh statistics
+    std::cout << "Loaded mesh with " << vertices.size() << " vertices and " << indices.size() / 3 << " triangles\n";
+
+    return {vertices, indices};
 }
 
 Model::Model(const std::string& file_name) {

@@ -15,7 +15,10 @@ add_executable(OpenGLPlayground
         main.cpp
         GLUtils.cpp GLUtils.hpp
         Shader.cpp Shader.hpp
-        FileIO.cpp FileIO.hpp Mesh.cpp Mesh.hpp Model.cpp Model.hpp FrameCounter.cpp FrameCounter.hpp)
+        FileIO.cpp FileIO.hpp
+        Mesh.cpp Mesh.hpp
+        Model.cpp Model.hpp
+        FrameCounter.cpp FrameCounter.hpp)
 
 # Find GLEW
 find_package(GLEW REQUIRED)
@@ -37,6 +40,9 @@ if (OpenGL_FOUND)
 endif ()
 
 # Link assimp
-target_link_libraries(OpenGLPlayground assimp)
+find_package(assimp REQUIRED)
+if (assimp_FOUND)
+    target_link_libraries(OpenGLPlayground assimp)
+endif ()
 
 
