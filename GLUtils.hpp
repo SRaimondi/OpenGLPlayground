@@ -21,6 +21,6 @@ GLenum glCheckError(const char *file, int line);
 std::string GLTypeToString(GLenum type);
 
 // Convert type to size
-std::size_t GLTypeToSize(GLenum type);
+GLsizei GLTypeToSize(GLenum type);
 
 #endif //OPENGLPLAYGROUND_GLUTILS_HPP

@@ -9,6 +9,7 @@
 #include "Shader.hpp"
 #include "Model.hpp"
 #include "FrameCounter.hpp"
+#include "UniformBlock.hpp"
 
 void processInput(GLFWwindow *window);
 
@@ -70,7 +71,8 @@ int main() {
     Program diffuse_program({diffuse_shader_v, diffuse_shader_f});
 
 
-
+    // FIXME
+    UniformBlock block(diffuse_program.getID(), "Matrices");
 
     // Prefetch attributes and uniforms locations
     diffuse_program.prefetchAttributes({"vertex_position", "vertex_normal"});

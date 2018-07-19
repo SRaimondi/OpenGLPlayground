@@ -7,8 +7,8 @@
 #include <iostream>
 #include <vector>
 
-UniformBlockElementDescription::UniformBlockElementDescription(GLuint i, GLenum t, GLsizei s, GLint off)
-        : index(i), type(t), size(s), offset(off) {}
+UniformBlockElementDescription::UniformBlockElementDescription(GLuint i, GLenum t, GLsizei s_b, GLsizei s, GLint off)
+        : index(i), type(t), size_bytes(s_b), size(s), offset(off) {}
 
 void UniformBlock::setupMap(const GLuint program_id) {
     // Query how many uniforms are in the block
@@ -47,7 +47,7 @@ void UniformBlock::setupMap(const GLuint program_id) {
             m_uniforms_map.emplace(
                     std::make_pair<std::string, UniformBlockElementDescription>(
                             name,
-                            UniformBlockElementDescription(indices_u[i], type, size, offsets[i])));
+                            UniformBlockElementDescription(indices_u[i], type, GLTypeToSize(type), size, offsets[i])));
         }
 
     } else {

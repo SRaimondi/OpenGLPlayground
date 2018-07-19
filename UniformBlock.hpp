@@ -5,7 +5,7 @@
 #ifndef OPENGLPLAYGROUND_UNIFORMBLOCK_HPP
 #define OPENGLPLAYGROUND_UNIFORMBLOCK_HPP
 
-#include <map>
+#include <unordered_map>
 #include "GLUtils.hpp"
 
 // Uniform block element description
@@ -14,12 +14,14 @@ struct UniformBlockElementDescription {
     GLuint index;
     // Type of the variable
     GLenum type;
-    // Size of the variable
+    // Size of the variable in bytes
+    GLsizei size_bytes;
+    // Size of the variable (for arrays this is > 1)
     GLsizei size;
     // Offset
     GLint offset;
 
-    UniformBlockElementDescription(GLuint i, GLenum t, GLsizei s, GLint off);
+    UniformBlockElementDescription(GLuint i, GLenum t, GLsizei s_b, GLsizei s, GLint off);
 };
 
 // Uniform block wrapper class associated with a program
@@ -36,7 +38,7 @@ private:
     GLint m_block_size;
 
     // Map between uniform's names and description
-    std::map<std::string, UniformBlockElementDescription> m_uniforms_map;
+    std::unordered_map<std::string, UniformBlockElementDescription> m_uniforms_map;
 
     // Setup the uniforms map
     void setupMap(GLuint program_id);

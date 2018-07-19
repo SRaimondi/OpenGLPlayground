@@ -74,7 +74,7 @@ std::string GLTypeToString(GLenum type) {
     }
 }
 
-std::size_t GLTypeToSize(GLenum type) {
+GLsizei GLTypeToSize(GLenum type) {
 
 #define CASE_MACRO(gl_type, count, type) \
 case (gl_type): return (count) * sizeof(type)
