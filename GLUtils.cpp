@@ -42,76 +42,80 @@ GLenum glCheckError(const char *file, int line) {
 }
 
 std::string GLTypeToString(GLenum type) {
+
+#define TYPE_TO_STRING(gl_type, type) \
+case (gl_type): return #type
+
     switch (type) {
-        case GL_BOOL:
-            return "bool";
-        case GL_INT:
-            return "int";
-        case GL_FLOAT:
-            return "float";
-        case GL_FLOAT_VEC2:
-            return "vec2";
-        case GL_FLOAT_VEC3:
-            return "vec3";
-        case GL_FLOAT_VEC4:
-            return "vec4";
-        case GL_FLOAT_MAT2:
-            return "mat2";
-        case GL_FLOAT_MAT3:
-            return "mat3";
-        case GL_FLOAT_MAT4:
-            return "mat4";
-        case GL_SAMPLER_2D:
-            return "sampler2D";
-        case GL_SAMPLER_3D:
-            return "sampler3D";
-        case GL_SAMPLER_CUBE:
-            return "samplerCube";
-        case GL_SAMPLER_2D_SHADOW:
-            return "sampler2DShadow";
+        // Floats
+        TYPE_TO_STRING(GL_FLOAT, float);
+        TYPE_TO_STRING(GL_FLOAT_VEC2, vec2);
+        TYPE_TO_STRING(GL_FLOAT_VEC3, vec3);
+        TYPE_TO_STRING(GL_FLOAT_VEC4, vec4);
+
+            // Bool
+        TYPE_TO_STRING(GL_BOOL, bool);
+
+            // Int
+        TYPE_TO_STRING(GL_INT, int);
+
+            // Matrices
+        TYPE_TO_STRING(GL_FLOAT_MAT2, mat2);
+        TYPE_TO_STRING(GL_FLOAT_MAT3, mat3);
+        TYPE_TO_STRING(GL_FLOAT_MAT4, mat4);
+
+            // Samplers
+        TYPE_TO_STRING(GL_SAMPLER_2D, sampler2D);
+        TYPE_TO_STRING(GL_SAMPLER_3D, sampler3D);
+        TYPE_TO_STRING(GL_SAMPLER_CUBE, samplerCube);
+        TYPE_TO_STRING(GL_SAMPLER_2D_SHADOW, sampler2DShadow);
+
+#undef TYPE_TO_STRING
+
         default:
             return "Unknown type";
     }
+
 }
 
 GLsizei GLTypeToSize(GLenum type) {
 
-#define CASE_MACRO(gl_type, count, type) \
+#define TYPE_TO_SIZE(gl_type, count, type) \
 case (gl_type): return (count) * sizeof(type)
 
     switch (type) {
         // Floats
-        CASE_MACRO(GL_FLOAT, 1, GLfloat);
-        CASE_MACRO(GL_FLOAT_VEC2, 2, GLfloat);
-        CASE_MACRO(GL_FLOAT_VEC3, 3, GLfloat);
-        CASE_MACRO(GL_FLOAT_VEC4, 4, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT, 1, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_VEC2, 2, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_VEC3, 3, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_VEC4, 4, GLfloat);
             // Ints
-        CASE_MACRO(GL_INT, 1, GLint);
-        CASE_MACRO(GL_INT_VEC2, 2, GLint);
-        CASE_MACRO(GL_INT_VEC3, 3, GLint);
-        CASE_MACRO(GL_INT_VEC4, 4, GLint);
+        TYPE_TO_SIZE(GL_INT, 1, GLint);
+        TYPE_TO_SIZE(GL_INT_VEC2, 2, GLint);
+        TYPE_TO_SIZE(GL_INT_VEC3, 3, GLint);
+        TYPE_TO_SIZE(GL_INT_VEC4, 4, GLint);
             // Unsigned ints
-        CASE_MACRO(GL_UNSIGNED_INT, 1, GLuint);
-        CASE_MACRO(GL_UNSIGNED_INT_VEC2, 2, GLuint);
-        CASE_MACRO(GL_UNSIGNED_INT_VEC3, 3, GLuint);
-        CASE_MACRO(GL_UNSIGNED_INT_VEC4, 4, GLuint);
+        TYPE_TO_SIZE(GL_UNSIGNED_INT, 1, GLuint);
+        TYPE_TO_SIZE(GL_UNSIGNED_INT_VEC2, 2, GLuint);
+        TYPE_TO_SIZE(GL_UNSIGNED_INT_VEC3, 3, GLuint);
+        TYPE_TO_SIZE(GL_UNSIGNED_INT_VEC4, 4, GLuint);
             // Bools
-        CASE_MACRO(GL_BOOL, 1, GLboolean);
-        CASE_MACRO(GL_BOOL_VEC2, 2, GLboolean);
-        CASE_MACRO(GL_BOOL_VEC3, 3, GLboolean);
-        CASE_MACRO(GL_BOOL_VEC4, 4, GLboolean);
+        TYPE_TO_SIZE(GL_BOOL, 1, GLboolean);
+        TYPE_TO_SIZE(GL_BOOL_VEC2, 2, GLboolean);
+        TYPE_TO_SIZE(GL_BOOL_VEC3, 3, GLboolean);
+        TYPE_TO_SIZE(GL_BOOL_VEC4, 4, GLboolean);
             // Matrices
-        CASE_MACRO(GL_FLOAT_MAT2, 4, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT2x3, 6, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT2x4, 8, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT3, 9, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT3x2, 6, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT3x4, 12, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT4, 16, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT4x2, 8, GLfloat);
-        CASE_MACRO(GL_FLOAT_MAT4x3, 12, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT2, 4, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT2x3, 6, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT2x4, 8, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT3, 9, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT3x2, 6, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT3x4, 12, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT4, 16, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT4x2, 8, GLfloat);
+        TYPE_TO_SIZE(GL_FLOAT_MAT4x3, 12, GLfloat);
 
-#undef CASE_MACRO
+#undef TYPE_TO_SIZE
 
         default: {
             std::cerr << "Unkown type\n";
