@@ -77,6 +77,9 @@ private:
     // Unordered map containing the attributes (name and location)
     mutable std::unordered_map<std::string, GLuint> m_attributes_map;
 
+    // Unordered map containing the subroutines
+    // TODO Add subroutines support!
+
     // Link program
     void link() const;
 
