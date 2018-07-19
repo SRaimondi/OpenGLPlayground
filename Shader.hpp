@@ -72,7 +72,7 @@ private:
     mutable std::unordered_map<std::string, GLuint> m_uniforms_map;
 
     // Unordered map containing the uniforms block locations
-//    mutable std::unordered_map<std::string, UniformBlock> m_uniforms_block_map;
+    mutable std::unordered_map<std::string, UniformBlock> m_uniforms_block_map;
 
     // Unordered map containing the attributes (name and location)
     mutable std::unordered_map<std::string, GLuint> m_attributes_map;
@@ -113,9 +113,9 @@ public:
     bool prefetchUniforms(const std::initializer_list<std::string>& uniform_names) const;
 
     // Prefetch a uniform block location, returns false if the block is not found
-//    bool prefetchUniformBlock(const std::string& uniform_block_name) const;
-//
-//    bool prefetchUniformBlocks(const std::initializer_list<std::string>& uniform_blocks_names) const;
+    bool prefetchUniformBlock(const std::string& uniform_block_name) const;
+
+    bool prefetchUniformBlocks(const std::initializer_list<std::string>& uniform_blocks_names) const;
 
     // Prefetch an attribute location, returns false if the attribute is not found
     bool prefetchAttribute(const std::string& attribute_name) const;
@@ -124,6 +124,9 @@ public:
 
     // Get location of a given uniform by name
     GLuint getUniformLocation(const std::string& uniform_name) const;
+
+    // Get uniform block representation for this program
+    const UniformBlock& getUniformBlock(const std::string& uniform_block_name) const;
 
     // Get location of a given attribute by name
     GLuint getAttributeLocation(const std::string& attrib_name) const;

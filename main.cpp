@@ -65,24 +65,36 @@ int main() {
     Model dragon_model("/Users/simon/Documents/Workspace/models/dragon_recon/dragon_vrip.ply");
 
     // Load shaders
-    Shader diffuse_shader_v("shaders/diffuse.vert", ShaderType::Vertex);
-    Shader diffuse_shader_f("shaders/diffuse.frag", ShaderType::Fragment);
+    Shader diffuse_shader_v("shaders/normal.vert", ShaderType::Vertex);
+    Shader diffuse_shader_f("shaders/normal.frag", ShaderType::Fragment);
     // Create program
     Program diffuse_program({diffuse_shader_v, diffuse_shader_f});
 
     // Prefetch attributes and uniforms locations
     diffuse_program.prefetchAttributes({"vertex_position", "vertex_normal"});
-    diffuse_program.prefetchUniforms({"model", "view", "proj"});
+    diffuse_program.prefetchUniform("model");
+    diffuse_program.prefetchUniformBlock("Matrices");
     // Print informations
     diffuse_program.printInformations();
 
     // Set shader active
     diffuse_program.use();
 
-    // Set uniforms
-    diffuse_program.setMat4("view",
-                            glm::lookAt(glm::vec3(0.f, 1.f, 1.f), glm::vec3(0.f, 0.2f, 0.f), glm::vec3(0.f, 1.f, 0.f)));
-    diffuse_program.setMat4("proj", glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 20.f));
+    // Create buffer with view and projection matrix
+    const std::vector<glm::mat4> matrices = {
+            glm::lookAt(glm::vec3(0.f, 1.f, 1.f), glm::vec3(0.f, 0.2f, 0.f), glm::vec3(0.f, 1.f, 0.f)),
+            glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 20.f)};
+
+    // Create a buffer to store
+    GLuint matrices_buffer;
+    glGenBuffers(1, &matrices_buffer);
+    // Bind buffer to uniform buffer
+    glBindBuffer(GL_UNIFORM_BUFFER, matrices_buffer);
+    // Upload data
+    glBufferData(GL_UNIFORM_BUFFER, matrices.size() * sizeof(glm::mat4), matrices.data(), GL_STATIC_DRAW);
+    // Bind buffer object to shader binding point
+    glBindBufferBase(GL_UNIFORM_BUFFER, diffuse_program.getUniformBlock("Matrices").getBindingPoint(), matrices_buffer);
+    GL_CHECK();
 
     double last_frame_update = 0.0;
 

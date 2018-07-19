@@ -209,21 +209,21 @@ bool Program::prefetchUniforms(const std::initializer_list<std::string>& uniform
     return true;
 }
 
-//bool Program::prefetchUniformBlock(const std::string& uniform_block_name) const {
-//    // Create uniform block and insert it into map
-//    m_uniforms_block_map[uniform_block_name] = UniformBlock(m_program_id, uniform_block_name);
-//    return true;
-//}
-//
-//bool Program::prefetchUniformBlocks(const std::initializer_list<std::string>& uniform_blocks_names) const {
-//    // Loop over all given uniform blocks and prefetch them
-//    for (const auto& ub : uniform_blocks_names) {
-//        if (!prefetchUniformBlock(ub)) {
-//            return false;
-//        }
-//    }
-//    return true;
-//}
+bool Program::prefetchUniformBlock(const std::string& uniform_block_name) const {
+    // Create uniform block and insert it into map
+    m_uniforms_block_map[uniform_block_name] = UniformBlock(m_program_id, uniform_block_name);
+    return true;
+}
+
+bool Program::prefetchUniformBlocks(const std::initializer_list<std::string>& uniform_blocks_names) const {
+    // Loop over all given uniform blocks and prefetch them
+    for (const auto& ub : uniform_blocks_names) {
+        if (!prefetchUniformBlock(ub)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 bool Program::prefetchAttribute(const std::string& attribute_name) const {
     const GLint location = glGetAttribLocation(m_program_id, attribute_name.c_str());
@@ -454,7 +454,7 @@ void Program::setMat4(const std::string& name, const glm::mat4& m) const {
 
 void Program::printUniforms() const {
     // Print uniform informations
-    std::cout << "Program has " << m_uniforms_map.size() << " uniforms\n";
+    std::cout << "Program has " << m_uniforms_map.size() << " uniform/s\n";
     for (const auto& u : m_uniforms_map) {
         std::cout << "Name: " << u.first << " Location: " << u.second << "\n";
     }
@@ -462,7 +462,7 @@ void Program::printUniforms() const {
 
 void Program::printUniformBlocks() const {
     // Print uniform blocks informations
-    std::cout << "Program has " << m_uniforms_block_map.size() << " uniform blocks\n";
+    std::cout << "Program has " << m_uniforms_block_map.size() << " uniform block/s\n";
     for (const auto& u : m_uniforms_block_map) {
         std::cout << "Uniform block name: " << u.first << "\n";
         u.second.printInformations();
@@ -471,7 +471,7 @@ void Program::printUniformBlocks() const {
 
 void Program::printAttributes() const {
     // Print attributes informations
-    std::cout << "Program has " << m_attributes_map.size() << " attributes\n";
+    std::cout << "Program has " << m_attributes_map.size() << " attribute/s\n";
     for (const auto& a : m_attributes_map) {
         std::cout << "Name: " << a.first << " Location: " << a.second << "\n";
     }

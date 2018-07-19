@@ -5,8 +5,10 @@
 #ifndef OPENGLPLAYGROUND_UNIFORMBLOCK_HPP
 #define OPENGLPLAYGROUND_UNIFORMBLOCK_HPP
 
-#include <unordered_map>
 #include "GLUtils.hpp"
+
+#include <unordered_map>
+#include <iostream>
 
 // Uniform block element description
 struct UniformBlockElementDescription {
@@ -49,6 +51,30 @@ public:
 
     // Construct UniformBlock for a given program and given the name
     UniformBlock(GLuint program_id, const std::string& block_name);
+
+    // Get description given name
+    inline const UniformBlockElementDescription& operator()(const std::string& uniform_name) const {
+        const auto it = m_uniforms_map.find(uniform_name);
+        if (it == m_uniforms_map.end()) {
+            std::cerr << "Requesting invalid uniform description\n";
+            exit(EXIT_FAILURE);
+        } else {
+            return it->second;
+        }
+    }
+
+    // Access uniform block data
+    inline GLuint getIndex() const noexcept {
+        return m_block_index;
+    }
+
+    inline GLuint getBindingPoint() const noexcept {
+        return m_binding_point;
+    }
+
+    inline GLint getBlockSize() const noexcept {
+        return m_block_size;
+    }
 
     // Print information about the block
     void printInformations() const;
