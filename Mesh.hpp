@@ -6,6 +6,7 @@
 #define OPENGLPLAYGROUND_MESH_HPP
 
 #include "Shader.hpp"
+#include "Buffer.hpp"
 
 // Vertex data
 struct Vertex {
@@ -18,10 +19,10 @@ class Mesh {
 private:
     // VAO index
     GLuint m_vao;
-    // VBO index
-    GLuint m_vbo;
-    // EBO index
-    GLuint m_ebo;
+    // Vertices and normal buffer
+    Buffer m_vertices;
+    // Indices buffer
+    Buffer m_indices;
     // Number of indices
     std::size_t m_num_elements;
 

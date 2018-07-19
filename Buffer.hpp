@@ -7,6 +7,7 @@
 
 #include "GLUtils.hpp"
 #include <vector>
+#include <iostream>
 
 class Buffer {
 private:
@@ -63,24 +64,24 @@ public:
 
 template<typename T>
 void Buffer::submitData(const std::vector<T>& data) {
-    // Bind buffer
-    bind();
-    // Submit data
-    glBufferData(m_target, data.size() * sizeof(T), data.data(), m_usage);
-    GL_CHECK();
-    // Unbind
-    unbind();
+    if (isBinded()) {
+        // Submit data
+        glBufferData(m_target, data.size() * sizeof(T), data.data(), m_usage);
+        GL_CHECK();
+    } else {
+        std::cerr << "Trying to submit data to unbinded buffer\n";
+    }
 }
 
 template<typename T>
 void Buffer::submitSubData(const std::vector<T>& data, GLintptr offset) {
-    // Bind buffer
-    bind();
-    // Submit data
-    glBufferSubData(m_target, offset, data.size() * sizeof(T), data.data());
-    GL_CHECK();
-    // Unbind
-    unbind();
+    if (isBinded()) {
+        // Submit data
+        glBufferSubData(m_target, offset, data.size() * sizeof(T), data.data());
+        GL_CHECK();
+    } else {
+        std::cerr << "Trying to submit data to unbinded buffer\n";
+    }
 }
 
 #endif //OPENGLPLAYGROUND_BUFFER_HPP

@@ -7,18 +7,17 @@
 void Mesh::setupMesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices) {
     // Generate buffers
     glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vbo);
-    glGenBuffers(1, &m_ebo);
 
     // Bind VAO
     glBindVertexArray(m_vao);
 
-    // Copy data to GPU
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+    // Bind buffer
+    m_vertices.bind();
+    m_indices.bind();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+    // Copy data to GPU
+    m_vertices.submitData(vertices);
+    m_indices.submitData(indices);
 
     // Set attribute for position
     glEnableVertexAttribArray(0);
@@ -34,18 +33,23 @@ void Mesh::setupMesh(const std::vector<Vertex>& vertices, const std::vector<GLui
 
     // Unbind
     glBindVertexArray(0);
+    // CAREFUL The vertex array object MUST be unbinded before the buffers or it will lose the automatic binding
+    m_vertices.unbind();
+    m_indices.unbind();
+
     GL_CHECK();
 }
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices)
-        : m_vao(0), m_vbo(0), m_ebo(0), m_num_elements(static_cast<GLsizei>(indices.size())) {
+        : m_vao(0), m_vertices(GL_ARRAY_BUFFER, GL_STATIC_DRAW), m_indices(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW),
+          m_num_elements(static_cast<GLsizei>(indices.size())) {
     setupMesh(vertices, indices);
 }
 
 void Mesh::destroy() {
     glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_vbo);
-    glDeleteBuffers(1, &m_ebo);
+    m_vertices.destroy();
+    m_indices.destroy();
 }
 
 void Mesh::draw() const {

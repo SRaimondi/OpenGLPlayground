@@ -9,8 +9,6 @@
 #include "Shader.hpp"
 #include "Model.hpp"
 #include "FrameCounter.hpp"
-#include "UniformBlock.hpp"
-#include "Buffer.hpp"
 
 void processInput(GLFWwindow *window);
 
@@ -108,10 +106,11 @@ int main() {
 
     // Create uniform buffer
     Buffer matrices_buffer(GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
+    matrices_buffer.bind();
 
     // Upload data
     const auto& un_block = diffuse_program.getUniformBlock("Matrices");
-    constexpr bool whole_buffer = false;
+    constexpr bool whole_buffer = true;
 
     if (whole_buffer) {
         // Send data to buffer
@@ -128,6 +127,9 @@ int main() {
         matrices_buffer.submitSubData<glm::mat4>(
                 std::vector<glm::mat4>(matrices.begin() + 1, matrices.end()), proj_desc.offset);
     }
+
+    matrices_buffer.unbind();
+
     // Bind buffer object to shader binding point
     glBindBufferBase(GL_UNIFORM_BUFFER, diffuse_program.getUniformBlock("Matrices").getBindingPoint(),
                      matrices_buffer.getID());
