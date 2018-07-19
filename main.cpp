@@ -10,6 +10,7 @@
 #include "Model.hpp"
 #include "FrameCounter.hpp"
 #include "UniformBlock.hpp"
+#include "Buffer.hpp"
 
 void processInput(GLFWwindow *window);
 
@@ -99,35 +100,39 @@ int main() {
             glm::lookAt(glm::vec3(0.f, 2.f, 7.f), glm::vec3(0.f, 0.2f, 0.f), glm::vec3(0.f, 1.f, 0.f)),
             glm::perspective(glm::radians(45.f), static_cast<float>(WIDTH) / HEIGHT, 0.1f, 20.f)};
 
-    // Create a buffer to store
-    GLuint matrices_buffer;
-    glGenBuffers(1, &matrices_buffer);
-    // Bind buffer to uniform buffer
-    glBindBuffer(GL_UNIFORM_BUFFER, matrices_buffer);
+//    // Create a buffer to store
+//    GLuint matrices_buffer;
+//    glGenBuffers(1, &matrices_buffer);
+//    // Bind buffer to uniform buffer
+//    glBindBuffer(GL_UNIFORM_BUFFER, matrices_buffer);
+
+    // Create uniform buffer
+    Buffer matrices_buffer(GL_UNIFORM_BUFFER, GL_STATIC_DRAW);
 
     // Upload data
     const auto& un_block = diffuse_program.getUniformBlock("Matrices");
-    constexpr bool whole_buffer = true;
+    constexpr bool whole_buffer = false;
+
     if (whole_buffer) {
-        glBufferData(GL_UNIFORM_BUFFER, un_block.getBlockSize(), matrices.data(), GL_STATIC_DRAW);
+        // Send data to buffer
+        matrices_buffer.submitData(matrices);
     } else {
         // Allocate space
-        glBufferData(GL_UNIFORM_BUFFER, un_block.getBlockSize(), nullptr, GL_STATIC_DRAW);
-        // Upload each matrix separately, start with view
+        matrices_buffer.allocateSpace(un_block.getBlockSize());
+        // Send view matrix
         auto view_desc = un_block.getUniformDescription("view");
-        glBufferSubData(GL_UNIFORM_BUFFER,
-                        view_desc.offset,
-                        view_desc.size_bytes, &matrices[0]);
-        GL_CHECK();
+        matrices_buffer.submitSubData<glm::mat4>(
+                std::vector<glm::mat4>(matrices.begin(), matrices.begin() + 1), view_desc.offset);
+        // Send projection matrix
         auto proj_desc = un_block.getUniformDescription("proj");
-        glBufferSubData(GL_UNIFORM_BUFFER,
-                        proj_desc.offset,
-                        proj_desc.size_bytes, &matrices[1]);
-        GL_CHECK();
+        matrices_buffer.submitSubData<glm::mat4>(
+                std::vector<glm::mat4>(matrices.begin() + 1, matrices.end()), proj_desc.offset);
     }
     // Bind buffer object to shader binding point
-    glBindBufferBase(GL_UNIFORM_BUFFER, diffuse_program.getUniformBlock("Matrices").getBindingPoint(), matrices_buffer);
-    glBindBufferBase(GL_UNIFORM_BUFFER, normal_program.getUniformBlock("Matrices").getBindingPoint(), matrices_buffer);
+    glBindBufferBase(GL_UNIFORM_BUFFER, diffuse_program.getUniformBlock("Matrices").getBindingPoint(),
+                     matrices_buffer.getID());
+    glBindBufferBase(GL_UNIFORM_BUFFER, normal_program.getUniformBlock("Matrices").getBindingPoint(),
+                     matrices_buffer.getID());
     GL_CHECK();
 
     double last_frame_update = 0.0;
@@ -182,8 +187,8 @@ int main() {
 
     // Cleanup
 
-    // Destroy uniform block
-    glDeleteBuffers(1, &matrices_buffer);
+    // Destroy matrices buffer
+    matrices_buffer.destroy();
 
     // Destroy model
     dragon_model.destroy();
