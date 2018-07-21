@@ -14,13 +14,14 @@ void processInput(GLFWwindow *window);
 
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 
-constexpr int WIDTH = 1280;
-constexpr int HEIGHT = 1024;
+int WIDTH = 1280;
+int HEIGHT = 1024;
 const std::string title("OpenGL playground");
 
 int main() {
     // Initialise GLFW
     glfwInit();
+    glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -216,6 +217,8 @@ void processInput(GLFWwindow *window) {
 }
 
 void framebufferSizeCallback(GLFWwindow *, int width, int height) {
+    WIDTH = width;
+    HEIGHT = height;
     // Reset viewport
     glViewport(0, 0, width, height);
 }
