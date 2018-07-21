@@ -77,8 +77,8 @@ private:
     // Unordered map containing the attributes (name and location)
     mutable std::unordered_map<std::string, GLuint> m_attributes_map;
 
-    // Unordered map containing the subroutines
-    // TODO Add subroutines support!
+    // Unordered map containing the subroutines, (name -> shader type and location)
+    mutable std::unordered_map<std::string, GLuint> m_subroutines_map;
 
     // Link program
     void link() const;
@@ -125,6 +125,11 @@ public:
 
     bool prefetchAttributes(const std::initializer_list<std::string>& attribute_names) const;
 
+    // Prefetch a subroutine uniform location, returns false if the subroutine is not found
+    bool prefetchSubroutine(GLenum shader_type, const std::string& subroutine_name) const;
+
+    bool prefetchSubroutines(const std::initializer_list<std::pair<GLenum, std::string>>& subroutine_names) const;
+
     // Get location of a given uniform by name
     GLuint getUniformLocation(const std::string& uniform_name) const;
 
@@ -133,6 +138,9 @@ public:
 
     // Get location of a given attribute by name
     GLuint getAttributeLocation(const std::string& attrib_name) const;
+
+    // Get location and shader type by name
+    GLuint getSubroutineLocation(GLenum shader_type, const std::string& subroutine_name) const;
 
     // Set values in the program using uniforms
     void setBool(const std::string& name, bool value) const;

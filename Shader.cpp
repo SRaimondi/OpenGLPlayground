@@ -9,7 +9,6 @@
 #include <glm/gtc/type_ptr.hpp>
 // STL includes
 #include <fstream>
-#include <iostream>
 #include <sstream>
 
 std::string shaderTypeToString(const ShaderType& type) {
@@ -245,6 +244,26 @@ bool Program::prefetchAttributes(const std::initializer_list<std::string>& attri
     return true;
 }
 
+bool Program::prefetchSubroutine(const GLenum shader_type, const std::string& subroutine_name) const {
+    const GLint location = glGetSubroutineUniformLocation(m_program_id, shader_type, subroutine_name.c_str());
+    if (location == -1) {
+        return false;
+    } else {
+        m_subroutines_map[subroutine_name] = static_cast<GLuint>(location);
+        return true;
+    }
+}
+
+bool Program::prefetchSubroutines(const std::initializer_list<std::pair<GLenum, std::string>>& subroutine_names) const {
+    // Loop over all given subroutines and prefetch their location
+    for (const auto& s : subroutine_names) {
+        if (!prefetchSubroutine(s.first, s.second)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 GLuint Program::getUniformLocation(const std::string& uniform_name) const {
     // Check if the uniform has been fetched
     const auto it = m_uniforms_map.find(uniform_name);
@@ -271,6 +290,9 @@ const UniformBlock& Program::getUniformBlock(const std::string& uniform_block_na
         if (prefetchUniformBlock(uniform_block_name)) {
             // Now the location is in the map, return it
             return m_uniforms_block_map[uniform_block_name];
+        } else {
+            std::cerr << "Could not prefetch uniform block with name: " << uniform_block_name << "\n";
+            return UniformBlock();
         }
     } else {
         // Return uniform block directly
@@ -292,6 +314,26 @@ GLuint Program::getAttributeLocation(const std::string& attrib_name) const {
         }
     } else {
         // Return location directly
+        return it->second;
+    }
+}
+
+GLuint Program::getSubroutineLocation(GLenum shader_type,
+                                      const std::string& subroutine_name) const {
+    // Check if subroutine has been fetched
+    const auto it = m_subroutines_map.find(subroutine_name);
+    if (it == m_subroutines_map.end()) {
+        // Try to fetch the value for later usage
+        if (!prefetchSubroutine(shader_type, subroutine_name)) {
+            std::cerr << "Program does not have a subroutine called " << subroutine_name <<
+                      " in shader type " << shaderTypeToString(ShaderType(shader_type)) << "\n";
+            return 0;
+        } else {
+            // Location now is in the map, return it
+            return m_subroutines_map[subroutine_name];
+        }
+    } else {
+        // Return shader type and location
         return it->second;
     }
 }
